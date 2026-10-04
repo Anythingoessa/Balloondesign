@@ -1098,21 +1098,58 @@ if (orderForm) {
             return checkbox.value;
         }).join(', ') || 'Not selected';
 
-        const subject = encodeURIComponent(`Order request from ${name || 'Customer'}`);
-        const body = encodeURIComponent(
-            'Name: ' + name + '\n' +
-            'Phone: ' + phone + '\n' +
-            'Email: ' + email + '\n' +
-            'Event Date: ' + eventDate + '\n' +
-            'Event Type: ' + eventType + '\n' +
-            'Products: ' + products + '\n' +
-            'Quantity / Guests: ' + quantity + '\n' +
-            'Budget: ' + budget + '\n\n' +
-            'Message:\n' + message
-        );
+        const payload = {
+            name: name,
+            phone: phone,
+            email: email,
+            event_date: eventDate,
+            event_type: eventType,
+            quantity: quantity,
+            budget: budget,
+            message: message,
+            products: products,
+            _subject: 'New order request from ' + (name || 'Website visitor')
+        };
 
-        window.location.href = 'mailto:anythingoessa@gmail.com?subject=' + subject + '&body=' + body;
+        const formsubmitUrl = 'https://formsubmit.co/ajax/anythingoessa@gmail.com';
+
+        fetch(formsubmitUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('Request failed');
+            }
+
+            alert('Your order request has been sent successfully.');
+            orderForm.reset();
+        })
+        .catch(function () {
+            const subject = encodeURIComponent('Order request from ' + (name || 'Customer'));
+            const body = encodeURIComponent(
+                'Name: ' + name + '\n' +
+                'Phone: ' + phone + '\n' +
+                'Email: ' + email + '\n' +
+                'Event Date: ' + eventDate + '\n' +
+                'Event Type: ' + eventType + '\n' +
+                'Products: ' + products + '\n' +
+                'Quantity / Guests: ' + quantity + '\n' +
+                'Budget: ' + budget + '\n\n' +
+                'Message:\n' + message
+            );
+
+            window.location.href = 'mailto:anythingoessa@gmail.com?subject=' + subject + '&body=' + body;
+        });
     });
+}
+
+if (window.location.protocol === 'file:') {
+    console.warn('This page is being opened from a local file and is not served over HTTPS. The browser may show an insecure warning until the site is hosted on a secure domain.');
 }
 
 </script>
